@@ -1,6 +1,17 @@
 # Bridge Day in Agentplace
 
-Use the free GPT-6 Luna model in the Builder and for the published agent. Start in preview. Agentplace documents [connecting external services](https://agentplace.io/docs/integrations/connect-apps) and [publishing with public access](https://agentplace.io/docs/publishing/publish-and-share).
+The published agent uses `gpt-6-luna`, and the Builder is set to GPT-6 Luna. [Model billing](https://agentplace.io/docs/monetization/platform-usage-and-billing) · [Public publishing](https://agentplace.io/docs/publishing/publish-and-share)
+
+## Hosted implementation
+
+| Responsibility | Agentplace project file |
+| --- | --- |
+| Planner form and results | `agent-dev-client/src/app/agent/surfaces/BridgeDayPlanner.tsx` |
+| Luna's ride plan action | `agent-dev-server/src/bl/tools/impl/get-ride-plan.tool.ts` |
+| Shared forecast logic | `shared/bridge-day-forecast.ts` |
+| Agent instructions and model | `agent-dev-server/src/instruction.md`, `agent-dev-server/src/config.ts` |
+
+The hosted project calls NWS directly. This repository contains the standalone planner and its verification tools. The project's **Versions** panel labels both snapshot download and GitHub sync as Enterprise features. [Agentplace code handoff](https://agentplace.io/docs/publishing/publish-and-share#can-i-hand-an-agent-to-a-client-or-host-it-myself)
 
 ## Builder brief
 
@@ -14,7 +25,7 @@ Use the free GPT-6 Luna model in the Builder and for the published agent. Start 
 >
 > Keep the three facts separate. Readings are forecast samples near the route. The rental subtotal uses published rates and is an estimate. The ferry links point to the operator’s schedule and bike policy. Render bridge access and rental links as secondary actions and the official rental link as the next step after a successful comparison. This demo has read-only planning tools. Direct booking, weather safety judgments, ferry capacity, and any access or availability promises belong with the relevant operator.
 
-## Live action contract
+## Recreating the live action
 
 Name the action `get_ride_plan`. Accept `date`, `departures`, `riders`, and `bike` as shown in the [parameter table](README.md#try-the-api). If the planner is deployed separately, issue `GET /v1/ride-plan` against that origin, passing the fields as query parameters. Return forecast status, time, checkpoint readings, recommendation, estimate and links to the agent.
 

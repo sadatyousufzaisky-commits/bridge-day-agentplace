@@ -5,10 +5,10 @@ Bridge Day helps visitors plan Blazing Saddles’ self-guided ride from Fisherma
 [Open the public Agentplace demo](https://bexcmykeu7dv.run.agentplace.io/). Visitor sign-in is disabled.
 
 1. Set the ride date to tomorrow in Pacific time, enter 10 a.m. and 1 p.m., and set the group size to three adults.
-2. Select **Compare ride times**. Each departure shows two forecast checkpoints, and the base rental estimates are $96 for comfort bikes and $192 for e-bikes at the documented rates.
+2. Select **Compare ride times**. Each departure shows two forecast checkpoints, and the planner shows a group estimate for each bike type.
 3. Select **Try a live example** to see the GPT-6 Luna conversation run its preset comparison.
 
-The repository includes the standalone forecast planner, its HTTP handler, and the tests. Read the [technical note](TECHNICAL-NOTE.md) for the hosted integration and production tradeoffs.
+The repository includes a runnable implementation of the forecast planner, its HTTP handler, and the tests. The [technical note](TECHNICAL-NOTE.md) explains how the published Agentplace project calls NWS, how to verify both paths, and what would change for production.
 
 ## Try the API
 
@@ -34,6 +34,8 @@ With the local service running, call `GET http://127.0.0.1:8787/v1/ride-plan?rid
 `GET /v1/ride-plan` returns itinerary and estimate data with `forecast.status`, `departures`, and `recommendedDeparture`. Compare a checkpoint’s `sampleAt` to its `forecastPeriodStart` and `forecastPeriodEnd` to reproduce the comparison. Each reading includes its NWS endpoint and update time. Forecast statuses are `ready`, `partial`, `unavailable`, `outside_horizon`, and `no_future_departures`. The API returns HTTP 400 for invalid inputs. A request with an unavailable forecast can still return the sourced itinerary and rental estimate. `GET /health` checks HTTP availability.
 
 Each weather request has a 4.5-second deadline. The service retries transient network and gateway failures once. It can return a partial result when only one grid remains available.
+
+The rental estimate uses the ride date to select the documented winter offer or standard online rate. Check the details and applicable dates with the shop. [Regular bike](https://www.blazingsaddles.com/san-francisco/bikes-and-rates/details-regular-bike) · [Electric bike](https://www.blazingsaddles.com/san-francisco/bikes-and-rates/details-electric-bike)
 
 ## Project files
 

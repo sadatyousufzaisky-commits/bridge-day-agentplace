@@ -36,7 +36,28 @@ test('ranks two complete departures and returns sourced group rental estimates',
   assert.equal(plan.departures[0].checkpoints[0].forecastPeriodStart, '2026-11-24T17:00:00.000Z');
   assert.equal(plan.departures[0].checkpoints[0].forecastPeriodEnd, '2026-11-24T18:00:00.000Z');
   assert.equal(plan.departures[0].comparison.maxForecastWindMph, 20);
-  assert.deepEqual(plan.itinerary.rentalEstimate.options.map(option => option.subtotalUsd), [64, 128]);
+  assert.deepEqual(plan.itinerary.rentalEstimate.options.map(option => option.subtotalUsd), [63, 112]);
+});
+
+test('applies the winter offer only to ride dates within its published window', async () => {
+  const cases = [
+    ['2026-11-16', [108, 192], /standard online/],
+    ['2026-11-17', [94.50, 168], /winter special/],
+    ['2027-02-28', [94.50, 168], /winter special/],
+    ['2027-03-01', [108, 192], /standard online/],
+    ['2027-11-17', [108, 192], /standard online/],
+  ];
+  for (const [date, totals, rateBasis] of cases) {
+    const plan = await planRide(new URLSearchParams({ ...defaultFields, date, riders: '3' }), {
+      now: new Date('2026-10-01T16:00:00Z'),
+      fetcher: async () => assert.fail('a ride beyond the forecast horizon should skip NWS'),
+    });
+    assert.equal(plan.forecast.status, 'outside_horizon');
+    const estimate = plan.itinerary.rentalEstimate;
+    assert.deepEqual(estimate.options.map(option => option.subtotalUsd), totals, date);
+    assert.match(estimate.basis, rateBasis, date);
+    assert.match(estimate.options[0].source, /details-regular-bike$/);
+  }
 });
 
 test('keeps official links and refuses to rank when one upstream request fails', async () => {

@@ -28,9 +28,20 @@ const CHECKPOINTS = [
 ];
 
 const BIKES = {
-  comfort: { label: 'Deluxe Comfort Bike', dailyUsd: 32, source: `${SHOP_ROOT}/bikes-and-rates/details-deluxe-comfort-bike` },
-  electric: { label: 'Electric Bike', dailyUsd: 64, source: `${SHOP_ROOT}/bikes-and-rates/details-electric-bike` },
+  comfort: {
+    label: 'Regular Bike',
+    standardDailyUsd: 36,
+    winterDailyUsd: 31.50,
+    source: `${SHOP_ROOT}/bikes-and-rates/details-regular-bike`,
+  },
+  electric: {
+    label: 'Electric Bike',
+    standardDailyUsd: 64,
+    winterDailyUsd: 56,
+    source: `${SHOP_ROOT}/bikes-and-rates/details-electric-bike`,
+  },
 };
+const WINTER_SPECIAL = { start: '2026-11-17', end: '2027-02-28' };
 
 export function localDate(now = new Date()) {
   return LOCAL_DATE.format(now);
@@ -167,6 +178,10 @@ function makeOption(candidate, forecasts) {
 
 function itinerary(query) {
   const choices = query.bike === 'compare' ? Object.keys(BIKES) : [query.bike];
+  const winterSpecial = query.date >= WINTER_SPECIAL.start && query.date <= WINTER_SPECIAL.end;
+  const rateBasis = winterSpecial
+    ? 'Published winter special for rides November 17, 2026 through February 28, 2027.'
+    : 'Published standard online all-day rate.';
   return {
     name: 'Fisherman’s Wharf to Sausalito',
     pickup: '2715 Hyde Street, San Francisco',
@@ -174,8 +189,12 @@ function itinerary(query) {
     rentalEstimate: {
       riders: query.riders,
       currency: 'USD',
-      basis: 'Published all-day online base rate per bike, checked 2026-11-24. Taxes, fees, ferry fare and equipment add-ons are separate. Verify current price and stock with the shop.',
-      options: choices.map(key => ({ ...BIKES[key], bike: key, subtotalUsd: BIKES[key].dailyUsd * query.riders })),
+      basis: `${rateBasis} Rates checked November 24, 2026. Taxes, fees, ferry fares and add-ons are separate. Confirm the price and availability with the shop.`,
+      options: choices.map(bike => {
+        const { label, source, standardDailyUsd, winterDailyUsd } = BIKES[bike];
+        const dailyUsd = winterSpecial ? winterDailyUsd : standardDailyUsd;
+        return { label, source, bike, dailyUsd, subtotalUsd: dailyUsd * query.riders };
+      }),
     },
     ferry: 'Golden Gate Ferry boards bicycles first come, first served. Check the operator schedule and bike policy before leaving.',
     links: LINKS,

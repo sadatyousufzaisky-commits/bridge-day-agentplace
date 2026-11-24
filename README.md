@@ -12,7 +12,7 @@ The repository includes a runnable implementation of the forecast planner, its H
 
 ## Try the API
 
-Use Node.js 22 or newer. No environment variables or API keys are required.
+Use Node.js 22 or newer. The smoke test runs the same three-rider comparison against both live NWS grids. No environment variables or API keys are required.
 
 ```sh
 git clone https://github.com/sadatyousufzaisky-commits/bridge-day-agentplace.git
